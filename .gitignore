@@ -3,7 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-### Data ###
+### Folders ###
+cluster_dash_env/
 
 
 # Visual Studio profiler

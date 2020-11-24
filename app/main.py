@@ -10,6 +10,12 @@ from Graphics import graphics
 from fastapi import FastAPI
 from fastapi.middleware.wsgi import WSGIMiddleware
 
+########## tatusa
+import io
+import base64
+import matplotlib.pyplot as plt
+#############
+
 
 variables_dir = "../data/variables/"
 variables_df_name = "_variables.parquet.gzip"
@@ -184,7 +190,7 @@ dash_app.layout = html.Div(children=[
                     ]),
             html.Br(),
             dbc.Row([
-                dbc.Col(id='bar-silhouette-coefficient-class2', align="start", width=6),
+                dbc.Col(html.Img(src='example')),
                 ]),
             html.Br(),
             ], label="Cluster Evaluation"),
@@ -435,7 +441,7 @@ def displayDescribeFeature(value):
 # warning
 @dash_app.callback(
     [Output('container-results-metric', 'children'), # button result
-     Output('bar-silhouette-coefficient-class2', 'children'), # graphics, deleted
+     Output('example', 'src'), # graphics, deleted
      ],
     [Input('results-metrics-button', 'n_clicks'), # calculate
      ],
@@ -452,17 +458,34 @@ def displayResultsMetrics(resultsmetricsbutton):
     if 'results-metrics-button' in changed_id:
         if all(v is not None for v in [df]):
             fig_elbow = graphics.elbow_yellowbrick(X=df, y=df[result_col_name], features=features)
-            elbow = dcc.Graph(figure=None) # warning
-            fig_silhoutte = graphics.silhoutte_yellowbrick(X=df, y=df[result_col_name], features=features)
-            silhoutte = dcc.Graph(figure=None) # warning
-            fig_distance = graphics.distance_yellowbrick(X=df, y=df[result_col_name], features=features)
-            distance = dcc.Graph(figure=None) # warning
+            #elbow = dcc.Graph(figure=None) # warning
+            #fig_silhoutte = graphics.silhoutte_yellowbrick(X=df, y=df[result_col_name], features=features)
+            #silhoutte = dcc.Graph(figure=None) # warning
+            #fig_distance = graphics.distance_yellowbrick(X=df, y=df[result_col_name], features=features)
+            #distance = dcc.Graph(figure=None) # warning
             msg = "the results metrics have been calculated"
+
+            # prueba tatusa
+            me =  fig_elbow.show(outpath="fig_elbow.png")
+
+            image_filename = 'fig_elbow.png' # replace with your own image
+            encoded_image = base64.b64encode(open(image_filename, 'rb').read())
+     
+            #pic_IObytes = io.BytesIO()
+            #fig_elbow.figure.savefig(pic_IObytes, format='png')
+            #pic_IObytes.seek(0)
+            #pic_hash = base64.b64encode(pic_IObytes.read())
+
+            #s = io.BytesIO()
+            #plt.plot(list(range(100)))
+            #plt.savefig(s, format='png', bbox_inches="tight")
+            #plt.close()
+            #s = base64.b64encode(s.getvalue()).decode("utf-8").replace("\n", "")
 
         else:
             msg = "a dataset has not been loaded"
             
-    return msg, elbow, silhoutte, distance
+    return msg, 'data:image/png;base64,{}'.format(encoded_image.decode()) #, silhoutte, distance
 
 
 app = FastAPI()

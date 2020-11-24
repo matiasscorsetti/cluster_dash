@@ -23,8 +23,8 @@ def elbow_yellowbrick(X,
     model = MiniBatchKMeans()
     visualizer = KElbowVisualizer(model, k=(2,10))
     visualizer.fit(X)
-
-    return visualizer
+    #visualizer = visualizer.show()       
+    return visualizer 
 
 
 def silhoutte_yellowbrick(X,

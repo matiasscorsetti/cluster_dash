@@ -13,6 +13,7 @@ import io
 import base64
 import os
 
+# run with: uvicorn main:app
 
 variables_dir = "data/variables/"
 variables_df_name = "_variables.parquet.gzip"
@@ -22,7 +23,7 @@ periods = 30
 result_col_name = "cluster"
 metrics_dir = "metrics/clusters/"
 metrics_plckle_name = "_metrics_cluster_result.pickle"
-not_cluster_list = ["0", "1"]
+not_cluster_list = ["0", "1"] # ignore anomalies and business rules
 
 path = "/dashboard/"
 external_stylesheets = [dbc.themes.BOOTSTRAP]
@@ -174,7 +175,7 @@ dash_app.layout = html.Div(children=[
             html.Br(),
             ], label="Cluster Decribe"),
         
-        # warning
+        # cluster evaluation
         dbc.Tab([
             html.Br(),
             dbc.Row([

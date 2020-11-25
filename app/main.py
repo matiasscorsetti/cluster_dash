@@ -9,12 +9,9 @@ import re
 from Graphics import graphics
 from fastapi import FastAPI
 from fastapi.middleware.wsgi import WSGIMiddleware
-
-########## tatusa
 import io
 import base64
-import matplotlib.pyplot as plt
-#############
+import os
 
 
 variables_dir = "data/variables/"
@@ -166,8 +163,8 @@ dash_app.layout = html.Div(children=[
                 ]),
             html.Br(),
             dbc.Row(dbc.Col(id='describe-feature-for-result-title', width={"size": "auto", "offset": 1})),
-            dbc.Row(dbc.Col(id='describe-feature-for-result', width={"size": 10, "offset": 1})),
             html.Br(),
+            dbc.Row(dbc.Col(id='describe-feature-for-result', width={"size": "auto", "offset": 1})),
             html.Br(),
             dbc.Row(dbc.Col(id='describe-feature-general-title', width={"size": "auto", "offset": 1})),
             dbc.Row([
@@ -487,6 +484,10 @@ def displayResultsMetrics(resultsmetricsbutton):
             fig_silhoutte = base64.b64encode(open(fig_silhoutte, 'rb').read())
             fig_silhoutte = 'data:image/png;base64,{}'.format(fig_silhoutte.decode())
             me = me.cla()
+
+            for file in os.listdir('.'):
+                if file.endswith('.png'):
+                    os.remove(file)
 
             msg = "the results metrics have been calculated"
 

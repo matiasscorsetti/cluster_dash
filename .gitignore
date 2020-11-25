@@ -6,6 +6,7 @@ __pycache__/
 ### Folders ###
 cluster_dash_env/
 vs/
+.vs/
 
 
 # Visual Studio profiler

@@ -2,8 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\app",
+    "\\app\\data",
     "\\app\\Graphics"
   ],
-  "SelectedNode": "\\app\\main.py",
+  "SelectedNode": "\\app\\requirements.txt",
   "PreviewInSolutionExplorer": false
 }

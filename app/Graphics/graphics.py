@@ -17,13 +17,13 @@ def elbow_yellowbrick(X,
     
     X_train, X_test, y_train, y_test = train_test_split(X[features], y,
                                                         stratify=y, 
-                                                        test_size=0.03)
+                                                        test_size=0.05)
     X = pd.DataFrame(X_test, columns=features)
     y = pd.Series(y_test)
     model = MiniBatchKMeans()
     visualizer = KElbowVisualizer(model, k=(2,10))
     visualizer.fit(X)
-    #visualizer = visualizer.show()       
+     
     return visualizer 
 
 
@@ -34,7 +34,7 @@ def silhoutte_yellowbrick(X,
     
     X_train, X_test, y_train, y_test = train_test_split(X[features], y,
                                                         stratify=y, 
-                                                        test_size=0.03)
+                                                        test_size=0.05)
     X = pd.DataFrame(X_test, columns=features)
     y = pd.Series(y_test)
     n_clusters = y.nunique()
@@ -52,7 +52,7 @@ def distance_yellowbrick(X,
     
     X_train, X_test, y_train, y_test = train_test_split(X[features], y,
                                                         stratify=y, 
-                                                        test_size=0.03)
+                                                        test_size=0.05)
     X = pd.DataFrame(X_test, columns=features)
     y = pd.Series(y_test)
     n_clusters = y.nunique()

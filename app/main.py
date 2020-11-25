@@ -17,13 +17,13 @@ import matplotlib.pyplot as plt
 #############
 
 
-variables_dir = "../data/variables/"
+variables_dir = "data/variables/"
 variables_df_name = "_variables.parquet.gzip"
-process_dir =  "../data/process/"
+process_dir =  "data/process/"
 process_df_name = "_cluster_result.parquet.gzip"
 periods = 30
 result_col_name = "cluster"
-metrics_dir = "../metrics/clusters/"
+metrics_dir = "metrics/clusters/"
 metrics_plckle_name = "_metrics_cluster_result.pickle"
 not_cluster_list = ["0", "1"]
 
@@ -181,16 +181,24 @@ dash_app.layout = html.Div(children=[
         dbc.Tab([
             html.Br(),
             dbc.Row([
-                dbc.Col(html.Button(id='results-metrics-button', n_clicks=0, children='Calculate'), width={"size": "auto", "offset": 1}),
+                dbc.Col(html.Button(id='cluster-evaluation-button', n_clicks=0, children='Calculate'), width={"size": "auto", "offset": 1}),
                 dbc.Col(dcc.Loading(
                             id="loading-6",
                             type="default",
-                            children=html.Div(id='container-results-metric')), 
+                            children=html.Div(id='container-cluster-evaluation')), 
                         width={"size": "auto"})
                     ]),
             html.Br(),
             dbc.Row([
-                dbc.Col(html.Img(src='example')),
+                dbc.Col(html.Img(id='elbow_fig'), width={"size": "auto"}),
+                ]),
+            html.Br(),
+            dbc.Row([
+                dbc.Col(html.Img(id='silhouette_fig'), width={"size": "auto"}),
+                ]),
+            html.Br(),
+            dbc.Row([
+                dbc.Col(html.Img(id='distance_fig'), width={"size": "auto"}),
                 ]),
             html.Br(),
             ], label="Cluster Evaluation"),
@@ -440,53 +448,52 @@ def displayDescribeFeature(value):
 
 # warning
 @dash_app.callback(
-    [Output('container-results-metric', 'children'), # button result
-     Output('example', 'src'), # graphics, deleted
+    [Output('container-cluster-evaluation', 'children'),
+     Output('elbow_fig', 'src'),
+     Output('silhouette_fig', 'src'),
+     Output('distance_fig', 'src'),
      ],
-    [Input('results-metrics-button', 'n_clicks'), # calculate
+    [Input('cluster-evaluation-button', 'n_clicks'),
      ],
     )
 def displayResultsMetrics(resultsmetricsbutton):
 
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
-    elbow = None
-    silhoutte = None
-    distance = None
+    fig_elbow = None
+    fig_silhoutte = None
+    fig_distance = None
     msg = "click to calculate the resulting metrics"
 
-    if 'results-metrics-button' in changed_id:
+    if 'cluster-evaluation-button' in changed_id:
         if all(v is not None for v in [df]):
             fig_elbow = graphics.elbow_yellowbrick(X=df, y=df[result_col_name], features=features)
-            #elbow = dcc.Graph(figure=None) # warning
-            #fig_silhoutte = graphics.silhoutte_yellowbrick(X=df, y=df[result_col_name], features=features)
-            #silhoutte = dcc.Graph(figure=None) # warning
-            #fig_distance = graphics.distance_yellowbrick(X=df, y=df[result_col_name], features=features)
-            #distance = dcc.Graph(figure=None) # warning
-            msg = "the results metrics have been calculated"
-
-            # prueba tatusa
             me =  fig_elbow.show(outpath="fig_elbow.png")
+            fig_elbow = 'fig_elbow.png'
+            fig_elbow = base64.b64encode(open(fig_elbow, 'rb').read())
+            fig_elbow = 'data:image/png;base64,{}'.format(fig_elbow.decode())
+            me = me.cla()
 
-            image_filename = 'fig_elbow.png' # replace with your own image
-            encoded_image = base64.b64encode(open(image_filename, 'rb').read())
-     
-            #pic_IObytes = io.BytesIO()
-            #fig_elbow.figure.savefig(pic_IObytes, format='png')
-            #pic_IObytes.seek(0)
-            #pic_hash = base64.b64encode(pic_IObytes.read())
+            fig_distance = graphics.distance_yellowbrick(X=df, y=df[result_col_name], features=features)
+            me =  fig_distance.show(outpath="fig_distance.png")
+            fig_distance = 'fig_distance.png'
+            fig_distance = base64.b64encode(open(fig_distance, 'rb').read())
+            fig_distance = 'data:image/png;base64,{}'.format(fig_distance.decode())
+            me = me.cla()
+            
+            fig_silhoutte = graphics.silhoutte_yellowbrick(X=df, y=df[result_col_name], features=features)
+            me =  fig_silhoutte.show(outpath="fig_silhoutte.png")
+            fig_silhoutte = 'fig_silhoutte.png'
+            fig_silhoutte = base64.b64encode(open(fig_silhoutte, 'rb').read())
+            fig_silhoutte = 'data:image/png;base64,{}'.format(fig_silhoutte.decode())
+            me = me.cla()
 
-            #s = io.BytesIO()
-            #plt.plot(list(range(100)))
-            #plt.savefig(s, format='png', bbox_inches="tight")
-            #plt.close()
-            #s = base64.b64encode(s.getvalue()).decode("utf-8").replace("\n", "")
+            msg = "the results metrics have been calculated"
 
         else:
             msg = "a dataset has not been loaded"
             
-    return msg, 'data:image/png;base64,{}'.format(encoded_image.decode()) #, silhoutte, distance
-
+    return msg, fig_elbow, fig_silhoutte, fig_distance
 
 app = FastAPI()
 

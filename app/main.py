@@ -466,25 +466,28 @@ def displayResultsMetrics(resultsmetricsbutton):
     if 'cluster-evaluation-button' in changed_id:
         if all(v is not None for v in [df]):
             fig_elbow = graphics.elbow_yellowbrick(X=df, y=df[result_col_name], features=features)
-            me =  fig_elbow.show(outpath="fig_elbow.png")
+            me = fig_elbow.show(outpath="fig_elbow.png")
             fig_elbow = 'fig_elbow.png'
             fig_elbow = base64.b64encode(open(fig_elbow, 'rb').read())
             fig_elbow = 'data:image/png;base64,{}'.format(fig_elbow.decode())
             me = me.cla()
+            me = None
 
             fig_distance = graphics.distance_yellowbrick(X=df, y=df[result_col_name], features=features)
-            me =  fig_distance.show(outpath="fig_distance.png")
+            me = fig_distance.show(outpath="fig_distance.png")
             fig_distance = 'fig_distance.png'
             fig_distance = base64.b64encode(open(fig_distance, 'rb').read())
             fig_distance = 'data:image/png;base64,{}'.format(fig_distance.decode())
             me = me.cla()
+            me = None
             
             fig_silhoutte = graphics.silhoutte_yellowbrick(X=df, y=df[result_col_name], features=features)
-            me =  fig_silhoutte.show(outpath="fig_silhoutte.png")
+            me = fig_silhoutte.show(outpath="fig_silhoutte.png")
             fig_silhoutte = 'fig_silhoutte.png'
             fig_silhoutte = base64.b64encode(open(fig_silhoutte, 'rb').read())
             fig_silhoutte = 'data:image/png;base64,{}'.format(fig_silhoutte.decode())
             me = me.cla()
+            me = None
 
             for file in os.listdir('.'):
                 if file.endswith('.png'):

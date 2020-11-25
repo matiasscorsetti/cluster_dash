@@ -17,7 +17,7 @@ def elbow_yellowbrick(X,
     
     X_train, X_test, y_train, y_test = train_test_split(X[features], y,
                                                         stratify=y, 
-                                                        test_size=0.05)
+                                                        test_size=0.10)
     X = pd.DataFrame(X_test, columns=features)
     y = pd.Series(y_test)
     model = MiniBatchKMeans()
@@ -34,7 +34,7 @@ def silhoutte_yellowbrick(X,
     
     X_train, X_test, y_train, y_test = train_test_split(X[features], y,
                                                         stratify=y, 
-                                                        test_size=0.05)
+                                                        test_size=0.10)
     X = pd.DataFrame(X_test, columns=features)
     y = pd.Series(y_test)
     n_clusters = y.nunique()
@@ -52,7 +52,7 @@ def distance_yellowbrick(X,
     
     X_train, X_test, y_train, y_test = train_test_split(X[features], y,
                                                         stratify=y, 
-                                                        test_size=0.05)
+                                                        test_size=0.10)
     X = pd.DataFrame(X_test, columns=features)
     y = pd.Series(y_test)
     n_clusters = y.nunique()
@@ -80,7 +80,7 @@ def var_by_result(df, result_col_name, col_name=None):
     return pivot
 
 
-def stratify_sample(df, result_col_name,  columns_list=None, test_size=0.05):
+def stratify_sample(df, result_col_name,  columns_list=None, test_size=0.10):
     
     if columns_list:
         columns = [result_col_name] + columns_list
@@ -225,7 +225,7 @@ def describe_by_result(df, result_col_name, col_name):
 
 def simple_histogram(df, col_name):
 
-    fig = px.histogram(df.sample(frac=0.03), x=col_name, color_discrete_sequence=["rgb(102,102,102)"], marginal="box",
+    fig = px.histogram(df.sample(frac=0.10), x=col_name, color_discrete_sequence=["rgb(102,102,102)"], marginal="box",
                       title="Distribution general of the variable {}".format(col_name))
 
     return fig

@@ -479,8 +479,6 @@ def displayClustereval(resultsmetricsbutton):
             fig_elbow = base64.b64encode(open('fig_elbow.png', 'rb').read())
             fig_elbow = 'data:image/png;base64,{}'.format(fig_elbow.decode())
             
-
-
             for file in os.listdir('.'):
                 if file.endswith('.png'):
                     os.remove(file)

@@ -23,9 +23,9 @@ def elbow_yellowbrick(X,
     model = MiniBatchKMeans()
     visualizer_elbow = KElbowVisualizer(model, k=(2,10))
     visualizer_elbow.fit(X)
-
     visualizer_elbow.finalize()
     plt.savefig("fig_elbow.png")
+
     return None 
 
 
@@ -44,9 +44,9 @@ def silhoutte_yellowbrick(X,
     visualizer_sil = SilhouetteVisualizer(model, colors='yellowbrick')
     visualizer_sil.fit(X)
     visualizer_sil.show(outpath="fig_silhoutte.png")
-
     visualizer_sil.finalize()
     plt.savefig("fig_silhoutte.png")
+
     return None
 
 
@@ -64,7 +64,6 @@ def distance_yellowbrick(X,
     model = MiniBatchKMeans(n_clusters)
     visualizer_dist = InterclusterDistance(model)
     visualizer_dist.fit(X)
-
     visualizer_dist.finalize()
     plt.savefig("fig_distance.png")
     

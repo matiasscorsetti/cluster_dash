@@ -2,6 +2,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
+import dash_auth
 from dash.dependencies import Input, Output, State
 import pandas as pd
 import pickle
@@ -15,6 +16,9 @@ import os
 
 # run with: uvicorn main:app
 
+USERNAME = "Corebi"
+PASSWORD = "Corebi123"
+
 variables_dir = "data/variables/"
 variables_df_name = "_variables.parquet.gzip"
 process_dir =  "data/process/"
@@ -25,10 +29,14 @@ metrics_dir = "metrics/clusters/"
 metrics_plckle_name = "_metrics_cluster_result.pickle"
 not_cluster_list = ["0", "1"] # ignore anomalies and business rules
 
-path = "/dashboard/"
+path = "/"
 external_stylesheets = [dbc.themes.BOOTSTRAP]
 
 dash_app = dash.Dash(__name__, external_stylesheets=external_stylesheets, requests_pathname_prefix=path)
+auth = dash_auth.BasicAuth(dash_app,
+                           {USERNAME: PASSWORD},
+                           )
+
 
 dash_app.layout = html.Div(children=[
 
@@ -492,9 +500,5 @@ def displayClustereval(resultsmetricsbutton):
 
 
 app = FastAPI()
-
-@app.get("/")
-def read_root():
-    return {"Cluster Dashboard": "go to path {}".format(path)}
 
 app.mount(path, WSGIMiddleware(dash_app.server), name="dashboard")

@@ -203,6 +203,7 @@ dash_app.layout = html.Div(children=[
         ])
     ])
 
+
 # load dataset in date range
 @dash_app.callback(
     [Output('container-button-timestamp', 'children'),
@@ -500,10 +501,11 @@ def displayResultsMetrics(resultsmetricsbutton):
             
     return msg, fig_elbow, fig_silhoutte, fig_distance
 
+
 app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"Cluster Dashboard": "Wyleex"}
+    return {"Cluster Dashboard": "go to path {}".format(path)}
 
 app.mount(path, WSGIMiddleware(dash_app.server), name="dashboard")

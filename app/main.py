@@ -29,7 +29,7 @@ metrics_dir = "metrics/clusters/"
 metrics_plckle_name = "_metrics_cluster_result.pickle"
 not_cluster_list = ["0", "1"] # ignore anomalies and business rules
 
-path = "/dashboard"
+path = "/dashboard/"
 external_stylesheets = [dbc.themes.BOOTSTRAP]
 
 dash_app = dash.Dash(__name__, external_stylesheets=external_stylesheets, requests_pathname_prefix=path)

@@ -187,7 +187,11 @@ def heatmap_plot(df, result_col_name, features):
     result_3 = feature_importance_for_each_class(sample_df[features], sample_df[result_col_name])
     result = (result_1 + result_2 + result_3) / 3
 
-    fig = px.imshow(result, color_continuous_scale=['#FF9900', '#f7e0bc', '#f7e0bc', '#FCFCFC', '#ceeaf2', '#ceeaf2', '#0099C6'], 
+    fig = px.imshow(result, color_continuous_scale=['#FF9900',
+                                                    '#f7e0bc','#f7e0bc','#f7e0bc','#f7e0bc',
+                                                    '#FCFCFC',
+                                                    '#ceeaf2','#ceeaf2','#ceeaf2','#ceeaf2',
+                                                    '#0099C6'],
                     title="Heat map with the importance of characteristics by class")
     fig.update_yaxes(type='category')
     fig.update_xaxes(type='category')

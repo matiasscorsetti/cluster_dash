@@ -29,13 +29,14 @@ metrics_dir = "metrics/clusters/"
 metrics_plckle_name = "_metrics_cluster_result.pickle"
 not_cluster_list = ["0", "1"] # ignore anomalies and business rules
 
-path = "/"
+path = "/dashboard"
 external_stylesheets = [dbc.themes.BOOTSTRAP]
 
 dash_app = dash.Dash(__name__, external_stylesheets=external_stylesheets, requests_pathname_prefix=path)
-auth = dash_auth.BasicAuth(dash_app,
-                           {USERNAME: PASSWORD},
-                           )
+# add login
+#auth = dash_auth.BasicAuth(dash_app,
+#                           {USERNAME: PASSWORD},
+#                           )
 
 
 dash_app.layout = html.Div(children=[

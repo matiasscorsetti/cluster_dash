@@ -14,53 +14,61 @@ def elbow_yellowbrick(X,
                       y,
                       features,
                       ):
-    
+    plt.clf()
     X_train, X_test, y_train, y_test = train_test_split(X[features], y,
                                                         stratify=y, 
-                                                        test_size=0.10)
+                                                        test_size=0.01)
     X = pd.DataFrame(X_test, columns=features)
     y = pd.Series(y_test)
     model = MiniBatchKMeans()
-    visualizer = KElbowVisualizer(model, k=(2,10))
-    visualizer.fit(X)
-     
-    return visualizer 
+    visualizer_elbow = KElbowVisualizer(model, k=(2,10))
+    visualizer_elbow.fit(X)
+
+    visualizer_elbow.finalize()
+    plt.savefig("fig_elbow.png")
+    return None 
 
 
 def silhoutte_yellowbrick(X,
                           y,
                           features,
                           ):
-    
+    plt.clf()
     X_train, X_test, y_train, y_test = train_test_split(X[features], y,
                                                         stratify=y, 
-                                                        test_size=0.10)
+                                                        test_size=0.01)
     X = pd.DataFrame(X_test, columns=features)
     y = pd.Series(y_test)
     n_clusters = y.nunique()
     model = MiniBatchKMeans(n_clusters)
-    visualizer = SilhouetteVisualizer(model, colors='yellowbrick')
-    visualizer.fit(X)
+    visualizer_sil = SilhouetteVisualizer(model, colors='yellowbrick')
+    visualizer_sil.fit(X)
+    visualizer_sil.show(outpath="fig_silhoutte.png")
 
-    return visualizer
+    visualizer_sil.finalize()
+    plt.savefig("fig_silhoutte.png")
+    return None
 
 
 def distance_yellowbrick(X,
                          y,
                          features,
                          ):
-    
+    plt.clf()
     X_train, X_test, y_train, y_test = train_test_split(X[features], y,
                                                         stratify=y, 
-                                                        test_size=0.10)
+                                                        test_size=0.01)
     X = pd.DataFrame(X_test, columns=features)
     y = pd.Series(y_test)
     n_clusters = y.nunique()
     model = MiniBatchKMeans(n_clusters)
-    visualizer = InterclusterDistance(model)
-    visualizer.fit(X)
+    visualizer_dist = InterclusterDistance(model)
+    visualizer_dist.fit(X)
 
-    return visualizer
+    visualizer_dist.finalize()
+    plt.savefig("fig_distance.png")
+    
+    return None
 
 
 def var_by_result(df, result_col_name, col_name=None):

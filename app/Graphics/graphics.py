@@ -15,6 +15,7 @@ def elbow_yellowbrick(X,
                       y,
                       features,
                       ):
+    plt.switch_backend('agg')
     plt.clf()
     X_train, X_test, y_train, y_test = train_test_split(X[features], y,
                                                         stratify=y, 
@@ -32,7 +33,7 @@ def balance_yellowbrick(X,
                         y,
                         features,
                         ):
-
+    plt.switch_backend('agg')
     plt.clf()
     X_train, X_test, y_train, y_test = train_test_split(X[features], y,
                                                         stratify=y, 
@@ -49,6 +50,7 @@ def silhoutte_yellowbrick(X,
                           y,
                           features,
                           ):
+    plt.switch_backend('agg')
     plt.clf()
     X_train, X_test, y_train, y_test = train_test_split(X[features], y,
                                                         stratify=y, 
@@ -68,6 +70,7 @@ def distance_yellowbrick(X,
                          y,
                          features,
                          ):
+    plt.switch_backend('agg')
     plt.clf()
     X_train, X_test, y_train, y_test = train_test_split(X[features], y,
                                                         stratify=y, 

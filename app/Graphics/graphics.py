@@ -24,9 +24,8 @@ def elbow_yellowbrick(X,
     visualizer_elbow = KElbowVisualizer(model, k=(2,10))
     visualizer_elbow.fit(X)
     visualizer_elbow.finalize()
-    plt.savefig("fig_elbow.png")
 
-    return None 
+    return plt 
 
 
 def silhoutte_yellowbrick(X,
@@ -45,9 +44,8 @@ def silhoutte_yellowbrick(X,
     visualizer_sil.fit(X)
     visualizer_sil.show(outpath="fig_silhoutte.png")
     visualizer_sil.finalize()
-    plt.savefig("fig_silhoutte.png")
 
-    return None
+    return plt
 
 
 def distance_yellowbrick(X,
@@ -65,9 +63,8 @@ def distance_yellowbrick(X,
     visualizer_dist = InterclusterDistance(model)
     visualizer_dist.fit(X)
     visualizer_dist.finalize()
-    plt.savefig("fig_distance.png")
     
-    return None
+    return plt
 
 
 def var_by_result(df, result_col_name, col_name=None):

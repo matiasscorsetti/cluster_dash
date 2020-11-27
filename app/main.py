@@ -14,7 +14,7 @@ import io
 import base64
 import os
 
-# run with: uvicorn main:app
+# run with: $ uvicorn main:app
 
 USERNAME = "Corebi"
 PASSWORD = "Corebi123"
@@ -55,11 +55,11 @@ dash_app.layout = html.Div(children=[
                     with_portal=True
                     ),
                     width="auto"),
-            dbc.Col(html.Button(id='submit-button', n_clicks=0, children='Load Results'),
+            dbc.Col(html.Button(id='submit-button', n_clicks=0, children='Load'),
                     width="auto"),
             dbc.Col(dcc.Loading(
-                        id="loading-1",
-                        type="default",
+                        id="loading-0",
+                        type="graph",
                         children=html.Div(id='container-button-timestamp')),
                     width="auto", lg=3),
             ]),
@@ -71,6 +71,15 @@ dash_app.layout = html.Div(children=[
 
         # data describe
         dbc.Tab([
+            html.Br(),
+            dbc.Row([
+                dbc.Col(html.Button(id='datadescribe-load-button', n_clicks=0, children='Load Describe Data'), width={"size": "auto", "offset": 1}),
+                dbc.Col(dcc.Loading(
+                            id="loading-1",
+                            type="default",
+                            children=html.Div(id='container-datadescribe')), 
+                        width={"size": "auto"}),
+                ]),
             html.Br(),
             dbc.Row([
                 dbc.Col(id='dataset-size', width={"size": "auto", "offset": 1}),
@@ -216,38 +225,31 @@ dash_app.layout = html.Div(children=[
 # load dataset in date range
 @dash_app.callback(
     [Output('container-button-timestamp', 'children'),
-     Output('dataset-size', 'children'),
-     Output('model-name', 'children'),
-     Output('title-features', 'children'),
-     Output('tab-features', 'children'),
-     Output('dataset-table', 'children'),
      Output('describe-column-dropdown', 'options'),
      ],
     [Input('submit-button', 'n_clicks'),
      Input('my-date-picker-single', 'date'),
      ],
     )
-def displayClick(submitbtn, date=None):
+def displayClick(submitbtn, current_selected_date=None):
 
+    global date
     global df
     global df_variables
-    global columns_labels
     global metrics
     global model_name
     global features
+    global columns_labels
+
+    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+
+    date = current_selected_date
     df = None
     df_variables = None
-    columns_labels = []
     metrics = None
     model_name = None
     features = []
-    dataset_table = None
-    size = None
-    str_model_name = None
-    title_features = None
-    tab_features = None
-
-    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+    columns_labels = []
 
     if 'submit-button' in changed_id:
         if date:
@@ -275,14 +277,6 @@ def displayClick(submitbtn, date=None):
                 msg = dcc.Markdown("**Dataset**: *start date* {start_date}, *end date* {end_date}".format(start_date=pd.to_datetime(start_date).strftime('%d/%m/%Y'), 
                                                                                  end_date=pd.to_datetime(end_date).strftime('%d/%m/%Y'),
                                                                                  ))
-                size = dcc.Markdown("**Dataset size:** {} rows".format(df.shape[0]))
-                str_model_name = dcc.Markdown("**Model name:** {}".format(model_name))
-                title_features = dcc.Markdown("**Features:** ")
-                tab_features = dcc.Markdown(" - ".join([str(i) for i in features]))
-                df_describe = df.describe().round(4).reset_index()
-                df_describe = df_describe.rename(columns={"index":"statistics"})
-                dataset_table = dbc.Table.from_dataframe(df_describe, striped=True, bordered=True, hover=True)
-
                 columns_labels = [{'label': str(col), 'value': col} for col in features]
 
             except FileNotFoundError:
@@ -297,7 +291,49 @@ def displayClick(submitbtn, date=None):
     else:
         msg = "Select a date to load the dataset"
 
-    return msg, size, str_model_name, title_features, tab_features, dataset_table, columns_labels
+    return msg, columns_labels
+
+
+# data describe
+@dash_app.callback(
+    [Output('container-datadescribe', 'children'),
+     Output('dataset-size', 'children'),
+     Output('model-name', 'children'),
+     Output('title-features', 'children'),
+     Output('tab-features', 'children'),
+     Output('dataset-table', 'children'),
+     ],
+    [Input('datadescribe-load-button', 'n_clicks'),
+     Input('my-date-picker-single', 'date'),
+     ],
+    )
+def displayDatadescribe(describedatabutton, current_selected_date=None):
+
+    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+
+    msg = "click to load drift results into input data"
+    size = None
+    str_model_name = None
+    title_features = None
+    tab_features = None
+    dataset_table = None
+
+    if 'datadescribe-load-button' in changed_id:
+        if all(v is not None for v in [df, model_name, features]):
+
+            size = dcc.Markdown("**Dataset size:** {} rows".format(df.shape[0]))
+            str_model_name = dcc.Markdown("**Model name:** {}".format(model_name))
+            title_features = dcc.Markdown("**Features:** ")
+            tab_features = dcc.Markdown(" - ".join([str(i) for i in features]))
+            df_describe = df.describe().round(4).reset_index()
+            df_describe = df_describe.rename(columns={"index":"statistics"})
+            dataset_table = dbc.Table.from_dataframe(df_describe, striped=True, bordered=True, hover=True)
+            msg = "data describe have been loaded"
+
+        else:
+            msg = "a dataset has not been loaded"
+
+    return msg, size, str_model_name, title_features, tab_features, dataset_table
 
 
 # drift
@@ -310,21 +346,23 @@ def displayClick(submitbtn, date=None):
      Output('drift-plot-describe', 'children'),
      ],
     [Input('drift-load-button', 'n_clicks'),
+     Input('my-date-picker-single', 'date'),
      ],
     )
-def displayDrift(driftloadbutton):
+def displayDrift(driftloadbutton, current_selected_date=None):
 
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
+    msg = "click to load drift results into input data"
     str_drift_average_predict = None
     str_drift_percentage_predict = None
     str_drift_totals_predict = None
     plot_predict_drift = None
     plot_describe_drift = None
-    msg = "click to load drift results into input data"
 
     if 'drift-load-button' in changed_id:
-        if all(v is not None for v in [metrics]):
+        if all(v is not None for v in [metrics, features]):
+
             str_drift_average_predict = dcc.Markdown("""###### Drift averege predict: {}""".format(round(metrics.get("drift_average_predict"), 4)))
             str_drift_percentage_predict = dcc.Markdown("###### Drift percentage predict:\n {}".format({key: round(value, 4) for key, value in metrics.get("drift_percentage_predict").items()}))
             str_drift_totals_predict = dcc.Markdown("###### Drift totals predict:\n {}".format({key: int(value) for key, value in metrics.get("drift_totals_predict").items()}))
@@ -351,9 +389,10 @@ def displayDrift(driftloadbutton):
     Output('pie-silhouette-coefficient-class', 'children'),
     ],
     [Input('results-button', 'n_clicks'),
+     Input('my-date-picker-single', 'date'),
      ],
      )
-def displayResultst(resultsbutton):
+def displayResultst(resultsbutton, current_selected_date=None):
 
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
@@ -368,7 +407,7 @@ def displayResultst(resultsbutton):
     pie_silhouette_class = None
 
     if 'results-button' in changed_id:
-        if all(v is not None for v in [df, metrics]):
+        if all(v is not None for v in [df, metrics, result_col_name]):
             distribution_title =  dcc.Markdown("## Class Distribution")
             distribution_data = df[result_col_name].value_counts(normalize=True).to_dict()
             bar_distribution = dcc.Graph(figure=graphics.bar_plot(df=df, result_col_name=result_col_name))
@@ -379,6 +418,7 @@ def displayResultst(resultsbutton):
             pie_silhouette_class = dcc.Graph(figure=graphics.pie_from_dict(dictionary=silhoutte_data))
             distribution_data = dcc.Markdown("**Values:** {}".format(str({key: round(value, 4) for key, value in distribution_data.items()})))
             silhoutte_data = dcc.Markdown("**Values:** {}".format(str({key: round(value, 4) for key, value in silhoutte_data.items()})))
+            msg = "results have been loaded"
 
         else:
             msg = "a dataset has not been loaded"
@@ -394,9 +434,10 @@ def displayResultst(resultsbutton):
      Output('bar-features-importance', 'children'),
      ],
     [Input('features-importance-button', 'n_clicks'),
+     Input('my-date-picker-single', 'date'),
      ],
     )
-def displayFeatureImportance(featuresimportancebutton):
+def displayFeatureImportance(featuresimportancebutton, current_selected_date=None):
 
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     heatmap_features_importance = None
@@ -427,10 +468,14 @@ def displayFeatureImportance(featuresimportancebutton):
      Output('describe-feature-general', 'children'),
      ],
     [Input('describe-column-dropdown', 'value'),
+     Input('my-date-picker-single', 'date'),
      ],
     )
-def displayDescribeFeature(value):
+def displayDescribeFeature(value, current_selected_date=None):
 
+    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+
+    msg = "load data and click to select a feature"
     histogram_clusters = None
     boxplot_clusters = None
     describe_cluster_title = None
@@ -439,22 +484,27 @@ def displayDescribeFeature(value):
     histogram_general = None
     describe_general = None
 
-    if all(v is not None for v in [df, df_variables]):
-        histogram_clusters = dcc.Graph(figure=graphics.histogram_plot(df=df, result_col_name=result_col_name, col_name=value))
-        boxplot_clusters = dcc.Graph(figure=graphics.box_plot(df=df, result_col_name=result_col_name, col_name=value))
-        describe_cluster_title = dcc.Markdown("**Feature statistics for each class:** {}".format(value))
-        describe_clusters_data = graphics.describe_by_result(df=df, result_col_name=result_col_name, col_name=value).round(4)
-        describe_clusters = dbc.Table.from_dataframe(describe_clusters_data, striped=True, bordered=True, hover=True)
-        describe_general_title = dcc.Markdown("**General feature statistics:** {}".format(value))
-        histogram_general = dcc.Graph(figure=graphics.simple_histogram(df=df, col_name=value))
-        describe_general_data = df[value].describe().to_frame().round(4).reset_index()
-        describe_general_data = describe_general_data.rename(columns={"index":"statistics"})
-        describe_general = dbc.Table.from_dataframe(describe_general_data, striped=True, bordered=True, hover=True)
+    if 'describe-column-dropdown' in changed_id:
+        if all(v is not None for v in [df, df_variables]):
+            histogram_clusters = dcc.Graph(figure=graphics.histogram_plot(df=df, result_col_name=result_col_name, col_name=value))
+            boxplot_clusters = dcc.Graph(figure=graphics.box_plot(df=df, result_col_name=result_col_name, col_name=value))
+            describe_cluster_title = dcc.Markdown("**Feature statistics for each class:** {}".format(value))
+            describe_clusters_data = graphics.describe_by_result(df=df, result_col_name=result_col_name, col_name=value).round(4)
+            describe_clusters = dbc.Table.from_dataframe(describe_clusters_data, striped=True, bordered=True, hover=True)
+            describe_general_title = dcc.Markdown("**General feature statistics:** {}".format(value))
+            histogram_general = dcc.Graph(figure=graphics.simple_histogram(df=df, col_name=value))
+            describe_general_data = df[value].describe().to_frame().round(4).reset_index()
+            describe_general_data = describe_general_data.rename(columns={"index":"statistics"})
+            describe_general = dbc.Table.from_dataframe(describe_general_data, striped=True, bordered=True, hover=True)
+            msg = str(value)
 
-    return value, histogram_clusters, boxplot_clusters, describe_cluster_title, describe_clusters, describe_general_title, histogram_general, describe_general
+        else:
+            msg = "a dataset has not been loaded"
+
+    return msg, histogram_clusters, boxplot_clusters, describe_cluster_title, describe_clusters, describe_general_title, histogram_general, describe_general
 
 
-# warning
+# cluster evaluation
 @dash_app.callback(
     [Output('container-cluster-evaluation', 'children'),
      Output('elbow_fig', 'src'),
@@ -462,9 +512,10 @@ def displayDescribeFeature(value):
      Output('distance_fig', 'src'),
      ],
     [Input('cluster-evaluation-button', 'n_clicks'),
+     Input('my-date-picker-single', 'date'),
      ],
     )
-def displayClustereval(resultsmetricsbutton):
+def displayClustereval(resultsmetricsbutton, current_selected_date=None):
 
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
@@ -476,20 +527,24 @@ def displayClustereval(resultsmetricsbutton):
     if 'cluster-evaluation-button' in changed_id:
         if all(v is not None for v in [df]):
             
-            graphics.silhoutte_yellowbrick(X=df, y=df[result_col_name], features=features)
+            plt = graphics.elbow_yellowbrick(X=df, y=df[result_col_name], features=features)
+            plt.savefig("fig_elbow.png")
+            fig_elbow = base64.b64encode(open('fig_elbow.png', 'rb').read())
+            fig_elbow = 'data:image/png;base64,{}'.format(fig_elbow.decode())
+
+            plt = graphics.silhoutte_yellowbrick(X=df, y=df[result_col_name], features=features)
+            plt.savefig("fig_silhoutte.png")
             fig_silhoutte = base64.b64encode(open("fig_silhoutte.png", 'rb').read())
             fig_silhoutte = 'data:image/png;base64,{}'.format(fig_silhoutte.decode())
 
-            graphics.distance_yellowbrick(X=df, y=df[result_col_name], features=features)
+            plt = graphics.distance_yellowbrick(X=df, y=df[result_col_name], features=features)
+            plt.savefig("fig_distance.png")
             fig_distance = base64.b64encode(open("fig_distance.png", 'rb').read())
             fig_distance = 'data:image/png;base64,{}'.format(fig_distance.decode())
-
-            graphics.elbow_yellowbrick(X=df, y=df[result_col_name], features=features)
-            fig_elbow = base64.b64encode(open('fig_elbow.png', 'rb').read())
-            fig_elbow = 'data:image/png;base64,{}'.format(fig_elbow.decode())
             
+            list_png = ["fig_elbow.png", "fig_silhoutte.png", "fig_distance.png"]
             for file in os.listdir('.'):
-                if file.endswith('.png'):
+                if file.endswith(tuple(list_png)):
                     os.remove(file)
 
             msg = "the results metrics have been calculated"

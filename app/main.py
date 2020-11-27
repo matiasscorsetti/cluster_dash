@@ -206,15 +206,13 @@ dash_app.layout = html.Div(children=[
                     ]),
             html.Br(),
             dbc.Row([
-                dbc.Col(html.Img(id='elbow_fig'), width={"size": "auto"}),
+                dbc.Col(html.Img(id='elbow_fig'), width={"size": 6}),
+                dbc.Col(html.Img(id='balance_fig'), width={"size": 6}),
                 ]),
             html.Br(),
             dbc.Row([
-                dbc.Col(html.Img(id='silhouette_fig'), width={"size": "auto"}),
-                ]),
-            html.Br(),
-            dbc.Row([
-                dbc.Col(html.Img(id='distance_fig'), width={"size": "auto"}),
+                dbc.Col(html.Img(id='silhouette_fig'), width={"size": 6}),
+                dbc.Col(html.Img(id='distance_fig'), width={"size": 6}),
                 ]),
             html.Br(),
             ], label="Cluster Evaluation"),
@@ -508,6 +506,7 @@ def displayDescribeFeature(value, current_selected_date=None):
 @dash_app.callback(
     [Output('container-cluster-evaluation', 'children'),
      Output('elbow_fig', 'src'),
+     Output('balance_fig', 'src'),
      Output('silhouette_fig', 'src'),
      Output('distance_fig', 'src'),
      ],
@@ -520,6 +519,7 @@ def displayClustereval(resultsmetricsbutton, current_selected_date=None):
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
     fig_elbow = None
+    fig_balance = None
     fig_silhoutte = None
     fig_distance = None
     msg = "click to calculate the resulting metrics"
@@ -532,6 +532,11 @@ def displayClustereval(resultsmetricsbutton, current_selected_date=None):
             fig_elbow = base64.b64encode(open('fig_elbow.png', 'rb').read())
             fig_elbow = 'data:image/png;base64,{}'.format(fig_elbow.decode())
 
+            plt = graphics.balance_yellowbrick(X=df, y=df[result_col_name], features=features)
+            plt.savefig("fig_balance.png")
+            fig_balance = base64.b64encode(open('fig_balance.png', 'rb').read())
+            fig_balance = 'data:image/png;base64,{}'.format(fig_balance.decode())
+
             plt = graphics.silhoutte_yellowbrick(X=df, y=df[result_col_name], features=features)
             plt.savefig("fig_silhoutte.png")
             fig_silhoutte = base64.b64encode(open("fig_silhoutte.png", 'rb').read())
@@ -542,7 +547,7 @@ def displayClustereval(resultsmetricsbutton, current_selected_date=None):
             fig_distance = base64.b64encode(open("fig_distance.png", 'rb').read())
             fig_distance = 'data:image/png;base64,{}'.format(fig_distance.decode())
             
-            list_png = ["fig_elbow.png", "fig_silhoutte.png", "fig_distance.png"]
+            list_png = ["fig_elbow.png", "fig_balance.png", "fig_silhoutte.png", "fig_distance.png"]
             for file in os.listdir('.'):
                 if file.endswith(tuple(list_png)):
                     os.remove(file)
@@ -552,7 +557,7 @@ def displayClustereval(resultsmetricsbutton, current_selected_date=None):
         else:
             msg = "a dataset has not been loaded"
             
-    return msg, fig_elbow, fig_silhoutte, fig_distance
+    return msg, fig_elbow, fig_balance, fig_silhoutte, fig_distance
 
 
 app = FastAPI()

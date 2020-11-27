@@ -3,6 +3,7 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 from yellowbrick.cluster import KElbowVisualizer, SilhouetteVisualizer, InterclusterDistance
+from yellowbrick.target import ClassBalance
 import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.model_selection import train_test_split
@@ -21,12 +22,28 @@ def elbow_yellowbrick(X,
     X = pd.DataFrame(X_test, columns=features)
     y = pd.Series(y_test)
     model = MiniBatchKMeans()
-    visualizer_elbow = KElbowVisualizer(model, k=(2,10))
+    visualizer_elbow = KElbowVisualizer(model, k=(2,9))
     visualizer_elbow.fit(X)
     visualizer_elbow.finalize()
 
     return plt 
 
+def balance_yellowbrick(X,
+                        y,
+                        features,
+                        ):
+
+    plt.clf()
+    X_train, X_test, y_train, y_test = train_test_split(X[features], y,
+                                                        stratify=y, 
+                                                        test_size=0.01)
+    X = pd.DataFrame(X_test, columns=features)
+    y = pd.Series(y_test)
+    visualizer = ClassBalance()
+    visualizer.fit(y)
+    visualizer.finalize()
+
+    return plt
 
 def silhoutte_yellowbrick(X,
                           y,
@@ -42,7 +59,6 @@ def silhoutte_yellowbrick(X,
     model = MiniBatchKMeans(n_clusters)
     visualizer_sil = SilhouetteVisualizer(model, colors='yellowbrick')
     visualizer_sil.fit(X)
-    visualizer_sil.show(outpath="fig_silhoutte.png")
     visualizer_sil.finalize()
 
     return plt

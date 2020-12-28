@@ -14,25 +14,18 @@ import io
 import base64
 import os
 
-# run with: $ uvicorn main:app
-
-USERNAME = "Corebi"
-PASSWORD = "Corebi123"
+USERNAME = os.environ['USERNAME']
+PASSWORD = os.environ['PASSWORD']
 
 variables_dir = "data/variables/"
 variables_df_name = "_variables.parquet.gzip"
 process_dir =  "data/process/"
-#process_df_name = "_cluster_result.parquet.gzip"
+process_df_name = "_cluster_result.parquet.gzip"
 periods = 30
 result_col_name = "cluster"
 metrics_dir = "data/metrics/"
-#metrics_plckle_name = "_metrics_cluster_result.pickle"
+metrics_plckle_name = "_metrics_cluster_result.pickle"
 not_cluster_list = ["0", "1"] # ignore anomalies and business rules
-models = {"antique_periodicity_rate_n_article_mean": ["_cluster_result_antique_periodicity_rate_n_article_mean.parquet.gzip",
-                                                       "_cluster_result_antique_periodicity_rate_n_article_mean.pickle"],
-          "recent_antique_periodicity_rate_n_article_mean": ["_cluster_result_recent_antique_periodicity_rate_n_article_mean.parquet.gzip",
-                                                             "_cluster_result_recent_antique_periodicity_rate_n_article_mean.pickle"],
-          }
 
 path = "/"
 external_stylesheets = [dbc.themes.BOOTSTRAP]
@@ -60,12 +53,6 @@ dash_app.layout = html.Div(children=[
                     with_portal=True
                     ),
                     width="auto"),
-            dbc.Col(html.H5(children='Select a model', style={'color': 'gray', 'text-align': 'left'}), 
-                    width={"size": "auto"},),
-            dbc.Col(dcc.Dropdown(
-                    id='models-dropdown', 
-                    options=[{'label': str(i), 'value': i} for i in models.keys()],
-                    ), width={"size": 4}),
             dbc.Col(html.Button(id='submit-button', n_clicks=0, children='Load'),
                     width="auto"),
             dbc.Col(dcc.Loading(
@@ -238,10 +225,9 @@ dash_app.layout = html.Div(children=[
      ],
     [Input('submit-button', 'n_clicks'),
      Input('my-date-picker-single', 'date'),
-     Input('models-dropdown', 'value')
      ],
     )
-def displayClick(submitbtn, current_selected_date=None, current_selected_model=None):
+def displayClick(submitbtn, current_selected_date=None):
 
     global date
     global df
@@ -267,10 +253,8 @@ def displayClick(submitbtn, current_selected_date=None, current_selected_model=N
             start_date = (pd.to_datetime(date) + pd.DateOffset(days= - periods + 1)).strftime('%Y%m%d')
 
             variables_file_path = variables_dir + end_date + "_" + start_date + variables_df_name
-            #process_file_path = process_dir + end_date + "_" + start_date + process_df_name
-            process_file_path = process_dir + end_date + "_" + start_date + str(models.get(current_selected_model)[0])
-            #metrics_file_path = metrics_dir + end_date + "_" + start_date + metrics_plckle_name
-            metrics_file_path = metrics_dir + end_date + "_" + start_date + "_metrics" + str(models.get(current_selected_model)[1])
+            process_file_path = process_dir + end_date + "_" + start_date + process_df_name
+            metrics_file_path = metrics_dir + end_date + "_" + start_date + metrics_plckle_name
 
             try:
                 df_variables = pd.read_parquet(variables_file_path)
@@ -317,10 +301,9 @@ def displayClick(submitbtn, current_selected_date=None, current_selected_model=N
      ],
     [Input('datadescribe-load-button', 'n_clicks'),
      Input('my-date-picker-single', 'date'),
-     Input('models-dropdown', 'value'),
      ],
     )
-def displayDatadescribe(describedatabutton, current_selected_date=None, current_selected_model=None):
+def displayDatadescribe(describedatabutton, current_selected_date=None):
 
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
@@ -360,10 +343,9 @@ def displayDatadescribe(describedatabutton, current_selected_date=None, current_
      ],
     [Input('drift-load-button', 'n_clicks'),
      Input('my-date-picker-single', 'date'),
-     Input('models-dropdown', 'value'),
      ],
     )
-def displayDrift(driftloadbutton, current_selected_date=None, current_selected_model=None):
+def displayDrift(driftloadbutton, current_selected_date=None):
 
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
@@ -404,10 +386,9 @@ def displayDrift(driftloadbutton, current_selected_date=None, current_selected_m
     ],
     [Input('results-button', 'n_clicks'),
      Input('my-date-picker-single', 'date'),
-     Input('models-dropdown', 'value'),
      ],
      )
-def displayResultst(resultsbutton, current_selected_date=None, current_selected_model=None):
+def displayResultst(resultsbutton, current_selected_date=None):
 
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
@@ -450,10 +431,9 @@ def displayResultst(resultsbutton, current_selected_date=None, current_selected_
      ],
     [Input('features-importance-button', 'n_clicks'),
      Input('my-date-picker-single', 'date'),
-     Input('models-dropdown', 'value'),
      ],
     )
-def displayFeatureImportance(featuresimportancebutton, current_selected_date=None, current_selected_model=None):
+def displayFeatureImportance(featuresimportancebutton, current_selected_date=None):
 
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     heatmap_features_importance = None
@@ -485,10 +465,9 @@ def displayFeatureImportance(featuresimportancebutton, current_selected_date=Non
      ],
     [Input('describe-column-dropdown', 'value'),
      Input('my-date-picker-single', 'date'),
-     Input('models-dropdown', 'value'),
      ],
     )
-def displayDescribeFeature(value, current_selected_date=None, current_selected_model=None):
+def displayDescribeFeature(value, current_selected_date=None):
 
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
@@ -531,10 +510,9 @@ def displayDescribeFeature(value, current_selected_date=None, current_selected_m
      ],
     [Input('cluster-evaluation-button', 'n_clicks'),
      Input('my-date-picker-single', 'date'),
-     Input('models-dropdown', 'value'),
      ],
     )
-def displayClustereval(resultsmetricsbutton, current_selected_date=None, current_selected_model=None):
+def displayClustereval(resultsmetricsbutton, current_selected_date=None):
 
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
